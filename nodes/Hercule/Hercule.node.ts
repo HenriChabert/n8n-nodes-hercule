@@ -7,7 +7,7 @@ export class Hercule implements INodeType {
 		displayName: 'Hercule',
 		name: 'hercule',
 		icon: 'file:hercule.svg',
-		group: ['input'],
+		group: ['transform'],
 		version: 1,
 		description: 'Make your browser extension talk to n8n',
 		defaults: {

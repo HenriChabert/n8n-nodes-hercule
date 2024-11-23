@@ -1,5 +1,5 @@
 {
-	"node": "n8n-nodes-base.webExtension",
+	"node": "n8n-nodes-base.herculeTrigger",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Development", "Developer Tools"],
@@ -8,6 +8,7 @@
 			{
 				"url": "http://httpbin.org/"
 			}
-		]
+		],
+		"generic": []
 	}
 }

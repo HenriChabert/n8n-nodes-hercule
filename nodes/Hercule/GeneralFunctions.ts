@@ -59,6 +59,7 @@ export namespace HerculeApi {
 		return await apiRequest.call(ref, 'POST', 'trigger', {
 			name: trigger.name,
 			source: 'n8n',
+			event: trigger.event,
 			webhook_url: trigger.webhookUrl,
 		});
 	};

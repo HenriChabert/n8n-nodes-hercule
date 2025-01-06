@@ -2,7 +2,6 @@ import {
 	INodeType,
 	INodeTypeDescription,
 	IHookFunctions,
-	NodeConnectionType,
 	IWebhookFunctions,
 	IWebhookResponseData,
 } from 'n8n-workflow';
@@ -27,7 +26,7 @@ export class HerculeTrigger implements INodeType {
 		group: ['trigger'],
 		icon: 'file:hercule.svg',
 		name: 'herculeTrigger',
-		outputs: [NodeConnectionType.Main],
+		outputs: ['main'],
 		version: 1,
 		subtitle: '',
 		inputs: [],
@@ -86,8 +85,6 @@ export class HerculeTrigger implements INodeType {
 				const mode = this.getMode();
 
 				const event = this.getNodeParameter('event') as string;
-
-				console.log('event: ', event);
 
 				let triggerName = workflowName;
 

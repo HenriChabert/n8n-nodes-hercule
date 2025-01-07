@@ -45,21 +45,16 @@ export class Hercule implements INodeType {
 						value: 'show_alert',
 						action: 'Show an alert to the user',
 					},
+					{
+						name: 'Inject Script',
+						value: 'inject_script',
+						action: 'Inject a script into the page',
+					},
 				],
 				routing: {
 					request: {
 						method: 'POST',
 						url: '=/webhook-usage/{{$parameter.webhookUsageId}}/callback',
-						body: {
-							actions: [
-								{
-									type: '={{$parameter.action}}',
-									params: {
-										message: '={{$parameter.message}}',
-									},
-								},
-							],
-						},
 					},
 				},
 				required: true,
@@ -79,18 +74,46 @@ export class Hercule implements INodeType {
 				default: 'Hello World',
 				displayOptions: {
 					show: {
-						action: ['show_console'],
+						action: ['show_console', 'show_alert'],
+					},
+				},
+				routing: {
+					request: {
+						body: {
+							actions: [
+								{
+									type: '={{$parameter.action}}',
+									params: {
+										message: '={{$parameter.message}}',
+									},
+								},
+							],
+						},
 					},
 				},
 			},
 			{
-				displayName: 'Message',
-				name: 'message',
+				displayName: 'Script',
+				name: 'script',
 				type: 'string',
-				default: 'Hello World',
+				default: 'console.log("Hello World");',
 				displayOptions: {
 					show: {
-						action: ['show_alert'],
+						action: ['inject_script'],
+					},
+				},
+				routing: {
+					request: {
+						body: {
+							actions: [
+								{
+									type: '={{$parameter.action}}',
+									params: {
+										script: '={{$parameter.script}}',
+									},
+								},
+							],
+						},
 					},
 				},
 			},

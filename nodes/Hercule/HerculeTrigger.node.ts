@@ -36,8 +36,7 @@ export class HerculeTrigger implements INodeType {
 				httpMethod: 'POST',
 				responseMode: 'onReceived',
 				path: 'webhooks',
-				responseData:
-					'{ "status": "success", "actions": [{"type": "show_console", "params": {"message": "Hello, world!"}}] }',
+				responseData: '{ "status": "success", "actions": [] }',
 			},
 		],
 		properties: [

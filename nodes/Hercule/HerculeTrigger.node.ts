@@ -4,6 +4,7 @@ import {
 	IHookFunctions,
 	IWebhookFunctions,
 	IWebhookResponseData,
+	IDataObject,
 } from 'n8n-workflow';
 import { HerculeApi } from './GeneralFunctions';
 
@@ -58,6 +59,23 @@ export class HerculeTrigger implements INodeType {
 				],
 				default: 'button_clicked',
 			},
+			{
+				displayName: 'Additional Fields',
+				name: 'additionalFields',
+				placeholder: 'Add Field',
+				description: 'Additional fields to add',
+				type: 'collection',
+				default: {},
+				options: [
+					{
+						displayName: 'URL Regex',
+						name: 'urlRegex',
+						type: 'string',
+						default: '.*',
+						description: 'The regex to filter the URL',
+					},
+				],
+			},
 		],
 	};
 
@@ -84,6 +102,9 @@ export class HerculeTrigger implements INodeType {
 				const mode = this.getMode();
 
 				const event = this.getNodeParameter('event') as string;
+				const additionalFields = this.getNodeParameter('additionalFields') as IDataObject;
+
+				const urlRegex = additionalFields.urlRegex as string;
 
 				let triggerName = workflowName;
 
@@ -96,6 +117,7 @@ export class HerculeTrigger implements INodeType {
 						name: triggerName,
 						event: event,
 						webhookUrl,
+						urlRegex,
 					});
 
 					webhookData.webhookId = trigger.id;

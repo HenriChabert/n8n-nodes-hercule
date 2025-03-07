@@ -49,6 +49,7 @@ export namespace HerculeApi {
 	interface ITrigger extends IDataObject {
 		name: string;
 		webhookUrl: string;
+		urlRegex: string;
 	}
 
 	export const fetchTriggers = async (ref: IHookFunctions) => {
@@ -61,6 +62,7 @@ export namespace HerculeApi {
 			source: 'n8n',
 			event: trigger.event,
 			webhook_url: trigger.webhookUrl,
+			url_regex: trigger.urlRegex,
 		});
 	};
 

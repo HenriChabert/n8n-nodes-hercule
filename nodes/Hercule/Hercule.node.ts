@@ -50,11 +50,21 @@ export class Hercule implements INodeType {
 						value: 'inject_script',
 						action: 'Inject a script into the page',
 					},
+					{
+						name: 'Insert Button',
+						value: 'insert_button',
+						action: 'Insert a button into the page',
+					},
 				],
 				routing: {
 					request: {
 						method: 'POST',
 						url: '=/webhook-usage/{{$parameter.webhookUsageId}}/callback',
+						body: {
+							action: {
+								type: '={{$parameter.action}}',
+							},
+						},
 					},
 				},
 				required: true,
@@ -80,14 +90,11 @@ export class Hercule implements INodeType {
 				routing: {
 					request: {
 						body: {
-							actions: [
-								{
-									type: '={{$parameter.action}}',
-									params: {
-										message: '={{$parameter.message}}',
-									},
+							action: {
+								params: {
+									message: '={{$parameter.message}}',
 								},
-							],
+							},
 						},
 					},
 				},
@@ -105,14 +112,230 @@ export class Hercule implements INodeType {
 				routing: {
 					request: {
 						body: {
-							actions: [
-								{
-									type: '={{$parameter.action}}',
-									params: {
-										script: '={{$parameter.script}}',
+							action: {
+								params: {
+									script: '={{$parameter.script}}',
+								},
+							},
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Button Label',
+				name: 'buttonLabel',
+				type: 'string',
+				default: 'Click me',
+				displayOptions: {
+					show: {
+						action: ['insert_button'],
+					},
+				},
+				routing: {
+					request: {
+						body: {
+							action: {
+								params: {
+									button: {
+										label: '={{$parameter.buttonLabel}}',
 									},
 								},
-							],
+							},
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Button Variant',
+				name: 'buttonVariant',
+				type: 'options',
+				options: [
+					{
+						name: 'Primary',
+						value: 'primary',
+					},
+					{
+						name: 'Secondary',
+						value: 'secondary',
+					},
+					{
+						name: 'Success',
+						value: 'success',
+					},
+					{
+						name: 'Warning',
+						value: 'warning',
+					},
+					{
+						name: 'Danger',
+						value: 'danger',
+					},
+				],
+				default: 'primary',
+				displayOptions: {
+					show: {
+						action: ['insert_button'],
+					},
+				},
+				routing: {
+					request: {
+						body: {
+							action: {
+								params: {
+									button: { variant: '={{$parameter.buttonVariant}}' },
+								},
+							},
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Button Size',
+				name: 'buttonSize',
+				type: 'options',
+				options: [
+					{
+						name: 'Small',
+						value: 'small',
+					},
+					{
+						name: 'Medium',
+						value: 'medium',
+					},
+					{
+						name: 'Large',
+						value: 'large',
+					},
+				],
+				default: 'medium',
+				displayOptions: {
+					show: {
+						action: ['insert_button'],
+					},
+				},
+				routing: {
+					request: {
+						body: {
+							action: {
+								params: {
+									button: { size: '={{$parameter.buttonSize}}' },
+								},
+							},
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Button Position',
+				name: 'buttonPosition',
+				type: 'options',
+				options: [
+					{
+						name: 'Top Right',
+						value: 'top-right',
+					},
+					{
+						name: 'Bottom Right',
+						value: 'bottom-right',
+					},
+					{
+						name: 'Bottom Left',
+						value: 'bottom-left',
+					},
+					{
+						name: 'Top Left',
+						value: 'top-left',
+					},
+					{
+						name: 'In Content',
+						value: 'in-content',
+					},
+				],
+				default: 'top-right',
+				displayOptions: {
+					show: {
+						action: ['insert_button'],
+					},
+				},
+				routing: {
+					request: {
+						body: {
+							action: {
+								params: {
+									button: { position: '={{$parameter.buttonPosition}}' },
+								},
+							},
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Button Parent CSS Selector',
+				name: 'buttonParentCssSelector',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						action: ['insert_button'],
+						buttonPosition: ['in-content'],
+					},
+				},
+				required: true,
+				routing: {
+					request: {
+						body: {
+							action: {
+								params: {
+									button: {
+										parent_css_selector: '={{$parameter.buttonParentCssSelector}}',
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Button Action',
+				name: 'buttonAction',
+				type: 'options',
+				options: [
+					{
+						name: 'Launch a Trigger',
+						value: 'launch_trigger',
+					},
+				],
+				default: 'launch_trigger',
+				displayOptions: {
+					show: {
+						action: ['insert_button'],
+					},
+				},
+				routing: {
+					request: {
+						body: {
+							action: { params: { button_action: '={{$parameter.buttonAction}}' } },
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Trigger ID',
+				name: 'triggerId',
+				type: 'string',
+				default: '',
+				displayOptions: {
+					show: {
+						buttonAction: ['launch_trigger'],
+					},
+				},
+				required: true,
+				routing: {
+					request: {
+						body: {
+							action: {
+								params: { trigger_id: '={{$parameter.triggerId}}' },
+							},
 						},
 					},
 				},

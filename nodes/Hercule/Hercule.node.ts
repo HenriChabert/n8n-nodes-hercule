@@ -1,12 +1,6 @@
-import type {
-	ILoadOptionsFunctions,
-	INodeListSearchItems,
-	INodeListSearchResult,
-	INodeType,
-	INodeTypeDescription,
-} from 'n8n-workflow';
-import { HerculeApi, herculeConnectionTest } from './GeneralFunctions';
-// import { listSearch } from './methods';
+import type { INodeType, INodeTypeDescription } from 'n8n-workflow';
+import { herculeConnectionTest } from './GeneralFunctions';
+import { listSearch } from './methods/index';
 
 export class Hercule implements INodeType {
 	description: INodeTypeDescription = {
@@ -538,32 +532,6 @@ export class Hercule implements INodeType {
 
 	methods = {
 		credentialTest: { herculeConnectionTest },
-		listSearch: {
-			listOnButtonClickedTriggers: async function (
-				this: ILoadOptionsFunctions,
-				filter?: string,
-			): Promise<INodeListSearchResult> {
-				const returnData: INodeListSearchItems[] = [];
-
-				const triggers = await HerculeApi.listTriggers(this, 'button_clicked');
-
-				for (const trigger of triggers) {
-					returnData.push({
-						name: trigger.name,
-						value: trigger.id || '',
-					});
-				}
-				returnData.sort((a, b) => {
-					if (a.name.toLocaleLowerCase() < b.name.toLocaleLowerCase()) {
-						return -1;
-					}
-					if (a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase()) {
-						return 1;
-					}
-					return 0;
-				});
-				return { results: returnData };
-			},
-		},
+		listSearch: listSearch,
 	};
 }

@@ -1,5 +1,12 @@
-import type { INodeType, INodeTypeDescription } from 'n8n-workflow';
-import { herculeConnectionTest } from './GeneralFunctions';
+import type {
+	ILoadOptionsFunctions,
+	INodeListSearchItems,
+	INodeListSearchResult,
+	INodeType,
+	INodeTypeDescription,
+} from 'n8n-workflow';
+import { HerculeApi, herculeConnectionTest } from './GeneralFunctions';
+// import { listSearch } from './methods';
 
 export class Hercule implements INodeType {
 	description: INodeTypeDescription = {
@@ -137,6 +144,7 @@ export class Hercule implements INodeType {
 							action: {
 								params: {
 									button: {
+										id: '={{$nodeId}}',
 										label: '={{$parameter.buttonLabel}}',
 									},
 								},
@@ -270,8 +278,8 @@ export class Hercule implements INodeType {
 				},
 			},
 			{
-				displayName: 'Button Parent CSS Selector',
-				name: 'buttonParentCssSelector',
+				displayName: 'Button Anchor CSS Selector',
+				name: 'buttonAnchorCssSelector',
 				type: 'string',
 				default: '',
 				displayOptions: {
@@ -287,10 +295,87 @@ export class Hercule implements INodeType {
 							action: {
 								params: {
 									button: {
-										parent_css_selector: '={{$parameter.buttonParentCssSelector}}',
+										anchorCssSelector: '={{$parameter.buttonAnchorCssSelector}}',
 									},
 								},
 							},
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Position To Anchor',
+				name: 'positionToAnchor',
+				type: 'options',
+				options: [
+					{
+						name: 'First Child',
+						value: 'first-child',
+						description: 'Button will be inserted as the first child of the anchor element',
+					},
+					{
+						name: 'Last Child',
+						value: 'last-child',
+						description: 'Button will be inserted as the last child of the anchor element',
+					},
+					{
+						name: 'N-th Child', // eslint-disable-line n8n-nodes-base/node-param-display-name-miscased
+						value: 'nth-child',
+						description: 'Button will be inserted as the N-th child of the anchor element',
+					},
+					{
+						name: 'Before',
+						value: 'before',
+						description: 'Button will be inserted before the anchor element',
+					},
+					{
+						name: 'After',
+						value: 'after',
+						description: 'Button will be inserted after the anchor element',
+					},
+					{
+						name: 'Replace',
+						value: 'replace',
+						description: 'Button will replace the anchor element',
+					},
+				],
+				default: 'before',
+				displayOptions: {
+					show: {
+						action: ['insert_button'],
+						buttonPosition: ['in-content'],
+					},
+				},
+				required: true,
+				routing: {
+					request: {
+						body: {
+							action: {
+								params: { button: { positionToAnchor: '={{$parameter.positionToAnchor}}' } },
+							},
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Nth Child Index',
+				name: 'nthChildIndex',
+				type: 'number',
+				default: 0,
+				displayOptions: {
+					show: {
+						action: ['insert_button'],
+						buttonPosition: ['in-content'],
+						positionToAnchor: ['nth-child'],
+					},
+				},
+				description:
+					'The index of the child to insert the button after. If the index is too high, the button will be inserted as the last child.',
+				required: true,
+				routing: {
+					request: {
+						body: {
+							action: { params: { button: { nthChildIndex: '={{$parameter.nthChildIndex}}' } } },
 						},
 					},
 				},
@@ -314,29 +399,137 @@ export class Hercule implements INodeType {
 				routing: {
 					request: {
 						body: {
-							action: { params: { button_action: '={{$parameter.buttonAction}}' } },
+							action: { params: { buttonAction: '={{$parameter.buttonAction}}' } },
 						},
 					},
 				},
 			},
 			{
-				displayName: 'Trigger ID',
+				displayName: 'Trigger',
 				name: 'triggerId',
-				type: 'string',
-				default: '',
+				type: 'resourceLocator',
+				default: { mode: 'list', value: '' },
+				required: true,
+				modes: [
+					{
+						displayName: 'By ID',
+						name: 'list',
+						type: 'list',
+						placeholder: 'Select a Trigger...',
+						typeOptions: {
+							searchListMethod: 'listOnButtonClickedTriggers',
+							searchable: true,
+						},
+					},
+				],
 				displayOptions: {
 					show: {
+						action: ['insert_button'],
 						buttonAction: ['launch_trigger'],
 					},
 				},
-				required: true,
+				description: 'The Trigger to launch',
 				routing: {
 					request: {
 						body: {
-							action: {
-								params: { trigger_id: '={{$parameter.triggerId}}' },
+							action: { params: { triggerId: '={{$parameter.triggerId}}' } },
+						},
+					},
+				},
+			},
+			{
+				displayName: 'Additional Fields',
+				name: 'additionalFields',
+				placeholder: 'Add Field',
+				description: 'Additional fields to add',
+				type: 'collection',
+				default: {},
+				options: [
+					{
+						displayName: 'Apply On All CSS Selector Matches',
+						name: 'applyOnAllCssSelectorMatches',
+						type: 'boolean',
+						default: false,
+						description:
+							'Whether to apply the button to all matches of the CSS selector or only the first one. If false, the button will be inserted only on the first match.',
+						routing: {
+							request: {
+								body: {
+									action: {
+										params: {
+											button: {
+												applyOnAllCssSelectorMatches: '={{$value}}',
+											},
+										},
+									},
+								},
 							},
 						},
+					},
+					{
+						displayName: 'Custom HTML',
+						name: 'customHtml',
+						type: 'string',
+						default: '',
+						description:
+							'By default, the button is a button element. If you want to use a different HTML element, you can use this field to specify the HTML element.',
+						routing: {
+							request: {
+								body: {
+									action: {
+										params: {
+											button: { customHtml: '={{$value}}' },
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						displayName: 'Custom CSS',
+						name: 'customCss',
+						type: 'string',
+						default: '',
+						description:
+							'Assign a custom CSS class to the button. Button class is "hercule-in-content-button". CSS should be written as in a style tag.',
+						routing: {
+							request: {
+								body: {
+									action: {
+										params: {
+											button: { customCss: '={{$value}}' },
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						displayName: 'Anchor Custom CSS',
+						name: 'anchorCustomCss',
+						type: 'string',
+						default: '',
+						description:
+							'Assign a custom CSS class to the anchor element. CSS should be written as inline CSS.',
+						routing: {
+							request: {
+								body: {
+									action: {
+										params: {
+											button: {
+												anchorCustomCss: '={{$value}}',
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				],
+				displayOptions: {
+					show: {
+						action: ['insert_button'],
+						buttonPosition: ['in-content'],
 					},
 				},
 			},
@@ -345,5 +538,32 @@ export class Hercule implements INodeType {
 
 	methods = {
 		credentialTest: { herculeConnectionTest },
+		listSearch: {
+			listOnButtonClickedTriggers: async function (
+				this: ILoadOptionsFunctions,
+				filter?: string,
+			): Promise<INodeListSearchResult> {
+				const returnData: INodeListSearchItems[] = [];
+
+				const triggers = await HerculeApi.listTriggers(this, 'button_clicked');
+
+				for (const trigger of triggers) {
+					returnData.push({
+						name: trigger.name,
+						value: trigger.id || '',
+					});
+				}
+				returnData.sort((a, b) => {
+					if (a.name.toLocaleLowerCase() < b.name.toLocaleLowerCase()) {
+						return -1;
+					}
+					if (a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase()) {
+						return 1;
+					}
+					return 0;
+				});
+				return { results: returnData };
+			},
+		},
 	};
 }

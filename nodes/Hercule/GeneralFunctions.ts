@@ -32,8 +32,6 @@ export async function apiRequest(
 		json: true,
 	};
 
-	console.log('options', options);
-
 	if (Object.keys(option).length !== 0) {
 		Object.assign(options, option);
 	}
@@ -77,6 +75,13 @@ export namespace HerculeApi {
 		} catch (error) {
 			return false;
 		}
+	};
+
+	export const login = async (ref: IHookFunctions, adminEmail: string, adminPassword: string) => {
+		return await apiRequest.call(ref, 'POST', 'login', {
+			email: adminEmail,
+			password: adminPassword,
+		});
 	};
 }
 

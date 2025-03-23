@@ -5,9 +5,22 @@ import type {
 	IHttpRequestOptions,
 	INodeProperties,
 } from 'n8n-workflow';
+import axios from 'axios';
+
+interface ILoginResponse {
+	token: {
+		access_token: string;
+		token_type: "bearer";
+	};
+	user: {
+		id: string;
+		email: string;
+		role: "user" | "admin";
+	};
+}
 
 export class HerculeApi implements ICredentialType {
-	name = 'herculeApi';
+	name = 'HerculeApi';
 
 	displayName = 'Hercule API';
 
@@ -21,8 +34,14 @@ export class HerculeApi implements ICredentialType {
 			default: 'http://127.0.0.1:8000',
 		},
 		{
-			displayName: 'Secret Key',
-			name: 'secretKey',
+			displayName: 'Admin Email',
+			name: 'adminEmail',
+			type: 'string',
+			default: '',
+		},
+		{
+			displayName: 'Admin Password',
+			name: 'adminPassword',
 			type: 'string',
 			typeOptions: {
 				password: true,
@@ -35,15 +54,35 @@ export class HerculeApi implements ICredentialType {
 		credentials: ICredentialDataDecryptedObject,
 		requestOptions: IHttpRequestOptions,
 	): Promise<IHttpRequestOptions> {
-		requestOptions.auth = {
-			// @ts-ignore
-			user: credentials.consumerKey as string,
-			password: credentials.consumerSecret as string,
-		};
+		const { adminEmail, adminPassword } = credentials;
+
+		const loginResponse = await axios<ILoginResponse>({
+			headers: {
+				'Content-Type': 'application/json',
+				Accept: 'application/json',
+			},
+			data: {
+				email: adminEmail,
+				password: adminPassword,
+			},
+			method: 'POST',
+			url: `${credentials.serverUrl}/api/v1/auth/login`,
+		});
+
+		if (loginResponse.status !== 200) {
+			throw new Error('Invalid credentials');
+		}
+
+		const { user, token } = loginResponse.data;
+
+		if (user.role !== 'admin') {
+			throw new Error('Invalid credentials. User is not an admin');
+		}
+
 		if (requestOptions.headers) {
 			delete requestOptions.auth;
 			Object.assign(requestOptions.headers, {
-				'X-Hercule-Secret-Key': credentials.secretKey,
+				"Authorization": `Bearer ${token.access_token}`
 			});
 		}
 		return requestOptions;

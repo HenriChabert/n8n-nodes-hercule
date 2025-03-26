@@ -7,6 +7,7 @@ import {
 	IDataObject,
 } from 'n8n-workflow';
 import { HerculeApi } from './GeneralFunctions';
+import { listSearch } from './methods/index';
 
 export class HerculeTrigger implements INodeType {
 	description: INodeTypeDescription = {
@@ -80,9 +81,32 @@ export class HerculeTrigger implements INodeType {
 						default: '.*',
 						description: 'The regex to filter the URL',
 					},
+					{
+						displayName: 'Only For User',
+						name: 'userId',
+						type: 'resourceLocator',
+						default: { mode: 'list', value: '' },
+						modes: [
+							{
+								displayName: 'By ID',
+								name: 'list',
+								type: 'list',
+								placeholder: 'Select a User...',
+								typeOptions: {
+									searchListMethod: 'listUsersForTrigger',
+									searchable: true,
+								},
+							},
+						],
+						description: 'Trigger will only be available for the selected user'
+					},
 				],
 			},
 		],
+	};
+
+	methods = {
+		listSearch: listSearch,
 	};
 
 	webhookMethods = {
@@ -111,6 +135,7 @@ export class HerculeTrigger implements INodeType {
 				const additionalFields = this.getNodeParameter('additionalFields') as IDataObject;
 
 				const urlRegex = additionalFields.urlRegex as string;
+				const userId = ((additionalFields.userId as IDataObject)?.value || '') as string;
 
 				let triggerName = workflowName;
 
@@ -124,6 +149,7 @@ export class HerculeTrigger implements INodeType {
 						event: event,
 						webhookUrl,
 						urlRegex,
+						userId,
 					});
 
 					webhookData.webhookId = trigger.id;

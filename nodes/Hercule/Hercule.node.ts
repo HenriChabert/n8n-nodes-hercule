@@ -76,7 +76,6 @@ export class Hercule implements INodeType {
 				name: 'webhookUsageId',
 				type: 'string',
 				default: '',
-				required: true,
 			},
 			{
 				displayName: 'Message',

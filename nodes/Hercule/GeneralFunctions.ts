@@ -49,6 +49,13 @@ export namespace HerculeApi {
 		name: string;
 		webhookUrl: string;
 		urlRegex: string;
+		userId?: string;
+	}
+
+	interface IUser extends IDataObject {
+		id?: string;
+		email: string;
+		role: 'user' | 'admin';
 	}
 
 	export const fetchTriggers = async (ref: IHookFunctions) => {
@@ -62,6 +69,7 @@ export namespace HerculeApi {
 			event: trigger.event,
 			webhook_url: trigger.webhookUrl,
 			url_regex: trigger.urlRegex,
+			user_id: trigger.userId,
 		});
 	};
 
@@ -93,6 +101,12 @@ export namespace HerculeApi {
 			email: adminEmail,
 			password: adminPassword,
 		});
+	};
+
+	export const listUsers = async (
+		ref: IExecuteFunctions | ILoadOptionsFunctions | IHookFunctions,
+	): Promise<IUser[]> => {
+		return await apiRequest.call(ref, 'GET', 'users');
 	};
 }
 

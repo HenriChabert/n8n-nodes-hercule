@@ -20,7 +20,7 @@ interface ILoginResponse {
 }
 
 export class HerculeApi implements ICredentialType {
-	name = 'HerculeApi';
+	name = 'herculeApi';
 
 	displayName = 'Hercule API';
 

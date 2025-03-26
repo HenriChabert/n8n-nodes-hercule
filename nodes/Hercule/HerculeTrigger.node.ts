@@ -37,7 +37,7 @@ export class HerculeTrigger implements INodeType {
 				httpMethod: 'POST',
 				responseMode: 'onReceived',
 				path: 'webhooks',
-				responseData: '{ "status": "success", "actions": [] }',
+				responseData: '{ "status": "success", "action": {} }',
 			},
 		],
 		properties: [
@@ -47,17 +47,23 @@ export class HerculeTrigger implements INodeType {
 				type: 'options',
 				options: [
 					{
-						name: 'Button Clicked',
-						value: 'button_clicked',
+						name: 'Trigger Manually In Popup',
+						value: 'manual_trigger_in_popup',
 						description: 'Triggers when a button is clicked',
 					},
 					{
 						name: 'Page Opened',
 						value: 'page_opened',
-						description: 'Triggers when a button is clicked',
+						description: 'Triggers when the page is opened',
+					},
+					{
+						name: 'Button Clicked',
+						value: 'button_clicked',
+						description:
+							'Triggers when a button is clicked (Button should be inserted in the page)',
 					},
 				],
-				default: 'button_clicked',
+				default: 'manual_trigger_in_popup',
 			},
 			{
 				displayName: 'Additional Fields',

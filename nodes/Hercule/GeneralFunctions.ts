@@ -45,6 +45,7 @@ export async function apiRequest(
 
 export namespace HerculeApi {
 	interface ITrigger extends IDataObject {
+		id?: string;
 		name: string;
 		webhookUrl: string;
 		urlRegex: string;
@@ -66,6 +67,16 @@ export namespace HerculeApi {
 
 	export const deleteTrigger = async (ref: IHookFunctions, triggerId: string) => {
 		return await apiRequest.call(ref, 'DELETE', `trigger/${triggerId}`);
+	};
+
+	export const listTriggers = async (
+		ref: IExecuteFunctions | ILoadOptionsFunctions | IHookFunctions,
+		event?: string,
+	): Promise<ITrigger[]> => {
+		const response = await apiRequest.call(ref, 'GET', 'triggers', {
+			event,
+		});
+		return response;
 	};
 
 	export const doesTriggerExist = async (ref: IHookFunctions, triggerId: string) => {
